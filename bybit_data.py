@@ -56,7 +56,7 @@ def run_bybit_check(symbol="ETHUSD", interval="15", from_time=60, perc=6):
         candles = session.query_kline(symbol=symbol, interval=interval, from_time=minutes_tf(from_time))
         data = create_df_from_bybit(candles)
         data = functions.add_columns_for_df(data)
-        print(datetime.datetime.now())
+        print(str(datetime.datetime.now()) + ' ' + symbol)
         print(data)
         key = symbol + str(interval)
         if (key in history and history[key] != data.iloc[2].open) or key not in history:

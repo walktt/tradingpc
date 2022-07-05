@@ -41,18 +41,22 @@ def create_df_from_ti(candles: [ti.HistoricCandle], token):
     return df
 
 
-def run_tinkoff_check(ticker: str, freq=ti.CandleInterval.CANDLE_INTERVAL_DAY, period_in_minutes: int = 0, period_in_hours: int = 0, period_in_days: int = 0):
+def run_tinkoff_check(ticker: str, freq=ti.CandleInterval.CANDLE_INTERVAL_DAY, period_in_minutes: int = 0, period_in_hours: int = 0,
+                      period_in_days: int = 0, perc=6):
+    today_date = datetime.date.today()
+    today_date_start = datetime.datetime(today_date.year, today_date.month, today_date.day)
+    if (period_in_hours > 0):
+        period = datetime.timedelta(hours=period_in_hours)
+        interval = period_in_hours
+    if (period_in_days > 0):
+        period = datetime.timedelta(minutes=period_in_days)
+        interval = period_in_days
+    if (period_in_minutes > 0):
+        period = datetime.timedelta(minutes=period_in_minutes)
+        interval = period_in_minutes
     try:
-        today_date = datetime.date.today()
-        today_date_start = datetime.datetime(today_date.year, today_date.month, today_date.day)
         with ti.Client(**_get_api_params_from_config()) as client:
             figi = get_figi_from_ticker(ticker, client)
-            if (period_in_hours > 0):
-                period = datetime.timedelta(hours=period_in_hours)
-            if (period_in_days > 0):
-                period = datetime.timedelta(minutes=period_in_days)
-            if (period_in_minutes > 0):
-                period = datetime.timedelta(minutes=period_in_minutes)
             raw_data = client.market_data.get_candles(
                 figi=figi,
                 from_=datetime.datetime.now() - period,
@@ -61,12 +65,16 @@ def run_tinkoff_check(ticker: str, freq=ti.CandleInterval.CANDLE_INTERVAL_DAY, p
             )
         data = create_df_from_ti(raw_data.candles, ticker)
         data = functions.add_columns_for_df(data)
-        print(datetime.datetime.now())
+        print(str(datetime.datetime.now()) + ' ' + ticker)
         print(data)
-        functions.pattern_check_pinbar(data)
+        functions.pattern_check_pinbar(data, perc=perc, timeframe=interval)
         functions.pattern_check_ski(data)
-    except:
+    except Exception as e:
         print("Oops!", sys.exc_info()[0], "occurred.")
+        if hasattr(e, 'message'):
+            print(e.message)
+        else:
+            print(e)
 
 # run_tinkoff_check(ticker='RIU2', freq=ti.CandleInterval.CANDLE_INTERVAL_15_MIN, period_in_minutes=45)
 

@@ -43,7 +43,6 @@ def pattern_check_ski(df: pd.DataFrame):
         print(message)
 
 def pattern_check_pinbar (df: pd.DataFrame, perc, timeframe):
-    perc = perc
     if (\
             # df.iloc[0].dir == df.iloc[1].dir and \
             (df.iloc[2].shadow_up + df.iloc[2].shadow_down) > df.iloc[2].dif and \
