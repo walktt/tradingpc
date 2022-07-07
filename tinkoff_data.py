@@ -65,16 +65,17 @@ def run_tinkoff_check(ticker: str, freq=ti.CandleInterval.CANDLE_INTERVAL_DAY, p
             )
         data = create_df_from_ti(raw_data.candles, ticker)
         data = functions.add_columns_for_df(data)
-        print(str(datetime.datetime.now()) + ' ' + ticker)
-        print(data)
-        functions.pattern_check_pinbar(data, perc=perc, timeframe=interval)
-        functions.pattern_check_ski(data)
+        functions.pattern_check_pinbar(data, perc=perc, timeframe=interval/3)
+        functions.pattern_check_ski(data, perc=perc, timeframe=interval/3)
     except Exception as e:
         print("Oops!", sys.exc_info()[0], "occurred.")
         if hasattr(e, 'message'):
             print(e.message)
         else:
             print(e)
+
+def download_data():
+
 
 # run_tinkoff_check(ticker='RIU2', freq=ti.CandleInterval.CANDLE_INTERVAL_15_MIN, period_in_minutes=45)
 

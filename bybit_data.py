@@ -6,7 +6,6 @@ import functions
 from configparser import ConfigParser
 import sys
 
-history={}
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
 
@@ -56,15 +55,8 @@ def run_bybit_check(symbol="ETHUSD", interval="15", from_time=60, perc=6):
         candles = session.query_kline(symbol=symbol, interval=interval, from_time=minutes_tf(from_time))
         data = create_df_from_bybit(candles)
         data = functions.add_columns_for_df(data)
-        print(str(datetime.datetime.now()) + ' ' + symbol)
-        print(data)
-        key = symbol + str(interval)
-        if (key in history and history[key] != data.iloc[2].open) or key not in history:
-            history[key] = data.iloc[2].open
-            functions.pattern_check_pinbar(data, perc=perc, timeframe=interval)
-            functions.pattern_check_ski(data)
-        else:
-            pass
+        functions.pattern_check_pinbar(data, perc=perc, timeframe=interval)
+        functions.pattern_check_ski(data, perc=perc, timeframe=interval)
     except Exception as e:
         # print("Oops!", sys.exc_info()[0], "occurred.")
         if hasattr(e, 'message'):
